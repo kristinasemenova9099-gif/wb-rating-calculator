@@ -1473,58 +1473,11 @@
     }
   }
 
-  // ---- password gate ----
-  // Not real access control (the JSON/HTML files still sit at public URLs on
-  // free static hosting) — this just keeps the link from being casually
-  // browsable/indexed. SHA-256 so the password isn't sitting in plain text
-  // in view-source; a determined technical visitor could still bypass it.
-  const LOCK_HASH = '713d88780b55099af43e5b7cb3a38b874ef711f13258798e5b2712fe4f76ebc3';
-  const LOCK_STORAGE_KEY = 'wb_calc_unlocked_v1';
+  // ---- password gate убран ----
+function unlockApp(){
+  $('lock-screen').style.display = 'none';
+  $('app-content').style.display = '';
+  initDatabase();
+}
 
-  async function sha256Hex(text){
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  function unlockApp(){
-    $('lock-screen').style.display = 'none';
-    $('app-content').style.display = '';
-    initDatabase();
-  }
-
-  let alreadyUnlocked = false;
-  try { alreadyUnlocked = localStorage.getItem(LOCK_STORAGE_KEY) === '1'; } catch(e){}
-
-  if (alreadyUnlocked){
-    unlockApp();
-  } else {
-    $('lock-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const entered = $('lock-password').value;
-      const hash = await sha256Hex(entered);
-      if (hash === LOCK_HASH){
-        try { localStorage.setItem(LOCK_STORAGE_KEY, '1'); } catch(e){}
-        $('lock-error').classList.remove('show');
-        unlockApp();
-      } else {
-        $('lock-error').classList.add('show');
-        $('lock-password').value = '';
-        $('lock-password').focus();
-      }
-    });
-  }
-
-  // theme toggle
-  const root = document.documentElement;
-  function setTheme(t){
-    if (t === 'light') { root.setAttribute('data-theme','light'); }
-    else if (t === 'dark') { root.setAttribute('data-theme','dark'); }
-    $('btn-light').setAttribute('aria-pressed', String(t === 'light'));
-    $('btn-dark').setAttribute('aria-pressed', String(t === 'dark'));
-  }
-  $('btn-light').addEventListener('click', () => setTheme('light'));
-  $('btn-dark').addEventListener('click', () => setTheme('dark'));
-})();
-</script>
-</body>
-</html>
+unlockApp();
